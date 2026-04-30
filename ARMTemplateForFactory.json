@@ -1,0 +1,1391 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "bcfactory01"
+        },
+        "ls_adls_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'ls_adls'"
+        },
+        "ls_sqldb_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'ls_sqldb'"
+        },
+        "ls_git_raw_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/"
+        },
+        "ls_adls_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://saistorage001.dfs.core.windows.net/"
+        },
+        "ls_json_rest_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://jsonplaceholder.typicode.com/"
+        },
+        "ls_sqldb_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "bootcamp01-server.database.windows.net"
+        },
+        "ls_sqldb_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "bcdatabase"
+        },
+        "ls_sqldb_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "sai"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/retail_copy_github')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy_sales",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "HttpReadSettings",
+                                    "requestMethod": "GET"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "SaleID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "SaleID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "CustomerID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "CustomerID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ProductID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "ProductID",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SaleDate",
+                                            "type": "Date",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "SaleDate",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Quantity",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Quantity",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "TotalAmount",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        },
+                                        "sink": {
+                                            "name": "TotalAmount",
+                                            "type": "String",
+                                            "physicalType": "String"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ds_sales",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ds_raw_sales",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Copy_customer",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "HttpReadSettings",
+                                    "requestMethod": "GET"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ds_customer",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ds_raw_customer",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Copy_product",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "HttpReadSettings",
+                                    "requestMethod": "GET"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ds_products",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ds_raw_products",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Data flow1",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy_sales",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Copy_customer",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Copy_product",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "dataflow_retail",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "Bronze0customer": {},
+                                    "Bronze0sales": {},
+                                    "Bronze0products": {},
+                                    "output0retail": {},
+                                    "sink0gold0retail0adls": {},
+                                    "sink0sqldb0gold0retail": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-29T15:26:30Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ds_sales')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_sales')]",
+                "[concat(variables('factoryId'), '/datasets/ds_customer')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_customer')]",
+                "[concat(variables('factoryId'), '/datasets/ds_products')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_products')]",
+                "[concat(variables('factoryId'), '/dataflows/dataflow_retail')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/rest_api_extraction')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy_reviews_bronze",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "RestSource",
+                                "httpRequestTimeout": "00:01:40",
+                                "requestInterval": "00.00:00:00.010",
+                                "requestMethod": "GET",
+                                "paginationRules": {
+                                    "supportRFC5988": "true"
+                                }
+                            },
+                            "sink": {
+                                "type": "JsonSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "JsonWriteSettings"
+                                }
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ds_rest_comments",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "Json1",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Data flow1",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy_reviews_bronze",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "dataflow_reviews",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "reviews0bronze0api": {},
+                                    "bronze0products": {},
+                                    "silver0reviews0sink": {},
+                                    "sink0gold": {},
+                                    "sink0gold0sqldb0review": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-29T14:36:03Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ds_rest_comments')]",
+                "[concat(variables('factoryId'), '/datasets/Json1')]",
+                "[concat(variables('factoryId'), '/dataflows/dataflow_reviews')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ls_git_raw')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "HttpServer",
+                "typeProperties": {
+                    "url": "[parameters('ls_git_raw_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ls_adls')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('ls_adls_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('ls_adls_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ls_json_rest')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('ls_json_rest_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ls_sqldb')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "server": "[parameters('ls_sqldb_properties_typeProperties_server')]",
+                    "database": "[parameters('ls_sqldb_properties_typeProperties_database')]",
+                    "encrypt": "optional",
+                    "trustServerCertificate": false,
+                    "authenticationType": "SQL",
+                    "userName": "[parameters('ls_sqldb_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('ls_sqldb_password')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dataflow_reviews')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "ds_rest_comments",
+                                "type": "DatasetReference"
+                            },
+                            "name": "reviews0bronze0api"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_raw_products",
+                                "type": "DatasetReference"
+                            },
+                            "name": "bronze0products"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "silver_reviews_parquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "silver0reviews0sink"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_retail_sink_gold_adls",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sink0gold",
+                            "rejectedDataLinkedService": {
+                                "referenceName": "ls_adls",
+                                "type": "LinkedServiceReference"
+                            }
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_sqldb_gold_reviews",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sink0gold0sqldb0review"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "bronze0reviews"
+                        },
+                        {
+                            "name": "join0silver"
+                        },
+                        {
+                            "name": "convertreviewtorating"
+                        },
+                        {
+                            "name": "select1"
+                        },
+                        {
+                            "name": "gold0review0select"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          body as (body as string, email as string, id as short, name as string, postId as short),",
+                        "          headers as [string,string]",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     httpMethod: 'GET',",
+                        "     timeout: 30,",
+                        "     requestInterval: 0,",
+                        "     paginationRules: ['supportRFC5988' -> 'true'],",
+                        "     responseFormat: ['type' -> 'json', 'documentForm' -> 'documentPerLine']) ~> reviews0bronze0api",
+                        "source(output(",
+                        "          ProductID as short,",
+                        "          ProductName as string,",
+                        "          Category as string,",
+                        "          Price as short,",
+                        "          StockQuantity as short",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> bronze0products",
+                        "reviews0bronze0api select(mapColumn(",
+                        "          ProductID = body.postId,",
+                        "          Email = body.email,",
+                        "          Name = body.name,",
+                        "          Rating = body.body",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> bronze0reviews",
+                        "bronze0products, convertreviewtorating join(bronze0products@ProductID == bronze0reviews@ProductID,",
+                        "     joinType:'left',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join0silver",
+                        "bronze0reviews derive(ReviewRating = toInteger(length(toString(byName('Rating'))) % 5 + 1)) ~> convertreviewtorating",
+                        "join0silver select(mapColumn(",
+                        "          ProductID = bronze0products@ProductID,",
+                        "          ProductName,",
+                        "          Category,",
+                        "          Price,",
+                        "          StockQuantity,",
+                        "          ProductID = bronze0reviews@ProductID,",
+                        "          Email,",
+                        "          Name,",
+                        "          Rating,",
+                        "          ReviewRating",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select1",
+                        "join0silver select(mapColumn(",
+                        "          ProductID = bronze0products@ProductID,",
+                        "          ProductName,",
+                        "          ReviewRating",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> gold0review0select",
+                        "select1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     partitionFileNames:['silver_reviews_products.parquet'],",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          ProductName,",
+                        "          Category,",
+                        "          Price,",
+                        "          StockQuantity,",
+                        "          Email,",
+                        "          Name,",
+                        "          Rating,",
+                        "          ReviewRating",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> silver0reviews0sink",
+                        "gold0review0select sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          ProductName,",
+                        "          ReviewRating",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> sink0gold",
+                        "gold0review0select sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError',",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          ProductName,",
+                        "          ReviewRating",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> sink0gold0sqldb0review"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ds_rest_comments')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_products')]",
+                "[concat(variables('factoryId'), '/datasets/silver_reviews_parquet')]",
+                "[concat(variables('factoryId'), '/datasets/ds_retail_sink_gold_adls')]",
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]",
+                "[concat(variables('factoryId'), '/datasets/ds_sqldb_gold_reviews')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dataflow_retail')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "ds_raw_customer",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Bronze0customer"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_raw_sales",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Bronze0sales"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_raw_products",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Bronze0products"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "ds_silver_retail",
+                                "type": "DatasetReference"
+                            },
+                            "name": "output0retail"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_gold_retail",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sink0gold0retail0adls"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ds_sqldb_retail_gold",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sink0sqldb0gold0retail",
+                            "rejectedDataLinkedService": {
+                                "referenceName": "ls_adls",
+                                "type": "LinkedServiceReference"
+                            }
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "removenullrows",
+                            "description": "!isNull(CustomerID)"
+                        },
+                        {
+                            "name": "replacenonewithtruenull",
+                            "description": "\nregexReplace"
+                        },
+                        {
+                            "name": "join0sales0customer",
+                            "description": "joining sales table and customer table using customerID"
+                        },
+                        {
+                            "name": "join0combined0products",
+                            "description": "joining the combined table with product table using productID"
+                        },
+                        {
+                            "name": "select1"
+                        },
+                        {
+                            "name": "select0gold0retail"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          CustomerID as double,",
+                        "          CustomerName as string,",
+                        "          Email as string,",
+                        "          Phone as string,",
+                        "          City as string,",
+                        "          Country as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Bronze0customer",
+                        "source(output(",
+                        "          SaleID as short,",
+                        "          CustomerID as short,",
+                        "          ProductID as short,",
+                        "          SaleDate as date,",
+                        "          Quantity as short,",
+                        "          TotalAmount as double",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Bronze0sales",
+                        "source(output(",
+                        "          ProductID as short,",
+                        "          ProductName as string,",
+                        "          Category as string,",
+                        "          Price as short,",
+                        "          StockQuantity as short",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: false) ~> Bronze0products",
+                        "Bronze0customer filter(!isNull(CustomerID)) ~> removenullrows",
+                        "removenullrows derive(Phone = iif(Phone == 'None', toString(null()), regexReplace(Phone, '[^0-9]', '')),",
+                        "          CustomerID = toInteger(CustomerID)) ~> replacenonewithtruenull",
+                        "Bronze0sales, replacenonewithtruenull join(Bronze0sales@CustomerID == replacenonewithtruenull@CustomerID,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join0sales0customer",
+                        "join0sales0customer, Bronze0products join(Bronze0sales@ProductID == Bronze0products@ProductID,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join0combined0products",
+                        "join0combined0products select(mapColumn(",
+                        "          ProductID = Bronze0sales@ProductID,",
+                        "          SaleDate,",
+                        "          TotalAmount,",
+                        "          Category",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select1",
+                        "join0combined0products select(mapColumn(",
+                        "          ProductID = Bronze0sales@ProductID,",
+                        "          SaleDate,",
+                        "          TotalAmount,",
+                        "          Category",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select0gold0retail",
+                        "select1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     partitionFileNames:['Silver_retail.parquet'],",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          SaleDate,",
+                        "          TotalAmount,",
+                        "          Category",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> output0retail",
+                        "select1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          SaleDate,",
+                        "          TotalAmount,",
+                        "          Category",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> sink0gold0retail0adls",
+                        "select0gold0retail sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError',",
+                        "     mapColumn(",
+                        "          ProductID,",
+                        "          SaleDate,",
+                        "          TotalAmount,",
+                        "          Category",
+                        "     ),",
+                        "     partitionBy('hash', 1)) ~> sink0sqldb0gold0retail"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ds_raw_customer')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_sales')]",
+                "[concat(variables('factoryId'), '/datasets/ds_raw_products')]",
+                "[concat(variables('factoryId'), '/datasets/ds_silver_retail')]",
+                "[concat(variables('factoryId'), '/datasets/ds_gold_retail')]",
+                "[concat(variables('factoryId'), '/datasets/ds_sqldb_retail_gold')]",
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_customer')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_git_raw",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": "/saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main/customers_sample.csv"
+                    },
+                    "columnDelimiter": ",",
+                    "rowDelimiter": "\n",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_git_raw')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_products')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_git_raw",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": "/saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main/products.csv"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_git_raw')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_sales')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_git_raw",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": "/saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main/Sales.csv"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_git_raw')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_raw_customer')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "customers_sample.txt",
+                        "folderPath": "saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main",
+                        "fileSystem": "bronze"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_raw_sales')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "Sales.csv",
+                        "folderPath": "saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main",
+                        "fileSystem": "bronze"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_raw_products')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "products.csv",
+                        "folderPath": "saiprakashpsr/retail-sales-bootcamp-data/refs/heads/main",
+                        "fileSystem": "bronze"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_silver_retail')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_rest_comments')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_json_rest",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": "comments"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_json_rest')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Json1')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "saiprakashpsr/retail-sales-bootcamp-data/refs",
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/silver_reviews_parquet')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_sql_silver_retail')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_sqldb",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_sqldb_silver_reviews')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_sqldb",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_retail_sink_gold_adls')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "gold"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_sqldb_gold_reviews')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_sqldb",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "review_gold"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_sqldb_retail_gold')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_sqldb",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "Retail_gold"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ds_gold_retail')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ls_adls",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "gold"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/github_extraction')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "retail_copy_github",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2026-04-28T01:19:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {}
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/retail_copy_github')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/restapi_extraction')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipeline": {
+                    "pipelineReference": {
+                        "referenceName": "rest_api_extraction",
+                        "type": "PipelineReference"
+                    },
+                    "parameters": {}
+                },
+                "type": "TumblingWindowTrigger",
+                "typeProperties": {
+                    "frequency": "Hour",
+                    "interval": 24,
+                    "startTime": "2026-04-29T00:47:00Z",
+                    "delay": "00:00:00",
+                    "maxConcurrency": 50,
+                    "retryPolicy": {
+                        "intervalInSeconds": 30
+                    },
+                    "dependsOn": []
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/rest_api_extraction')]"
+            ]
+        }
+    ]
+}
